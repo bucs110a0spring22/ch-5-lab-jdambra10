@@ -31,8 +31,140 @@ import time
 #########################################################
 #                   Your Code Goes Below                #
 #########################################################
+def drawSquare(myturtle=None, width=0, top_left_x=0, top_left_y=0):
+  myturtle.up()
+  myturtle.goto(top_left_x, top_left_y)
+  myturtle.down()
+  for i in range(4):
+    myturtle.forward(width)
+    myturtle.right(90)
+  myturtle.up()
+
+def drawLine(myturtle=None, x_start=0, y_start=0, x_end=0, y_end=0):
+  myturtle.goto(x_start, y_start)
+  myturtle.down()
+  myturtle.goto(x_end, y_end)
+  myturtle.up()
+  
+
+def drawCircle(myturtle=None, radius=0, center = -1):
+  myturtle.goto(0,center)
+  myturtle.down()
+  myturtle.circle(radius)
+  myturtle.up()
+
+def setUpDartboard(myscreen=None, myturtle=None):
+  myscreen.setworldcoordinates (-2, -2, 2, 2) ##added by TA
+  drawSquare(myturtle, 2, -1, 1)
+  drawLine(myturtle, -1, 0, 1, 0)
+  drawLine(myturtle,0,-1,0,1)
+  drawCircle(myturtle, 1)
+
+def isInCircle(myturtle=None, circle_center_x=0, circle_center_y=0, radius=0):
+  distance = myturtle.distance(circle_center_x,circle_center_y)
+  if (distance<=radius):
+    return True
+  else:
+    myturtle.down()
+    myturtle.dot(5, "orange")
+    myturtle.up()
+    return False
+
+def throwDart(myturtle=None, darts=1, color="blue"):
+  for d in range(darts):
+    x_value = random.uniform(-1, 1)
+    y_value = random.uniform(-1, 1)
+    myturtle.goto(x_value, y_value)
+    myturtle.down()
+    myturtle.dot(5, str(color))
+    myturtle.up()
+
+def playDarts(myturtle=None):
+  p1Points = 0
+  p2Points = 0
+  for i in range(10):
+    #Player 1's Turn
+    throwDart(myturtle)
+    if isInCircle(myturtle, radius=1):
+      p1Points+=1
+
+    #Player 2's Turn
+    throwDart(myturtle)
+    if isInCircle(myturtle, radius=1):
+      p2Points+=1
+
+  if p1Points > p2Points:
+    print("Player 1 Wins!")
+  elif p1Points < p2Points:
+    print("Player 2 Wins!")
+  else:
+    print("Players are tied! You both win!")
+
+def montePi(myturtle=None, num_darts=0):
+  inside_count = 0
+  for i in range(num_darts):
+    throwDart(myturtle)
+    if isInCircle(myturtle, radius = 1):
+      inside_count+=1   
+  pi_approximation = (inside_count / num_darts) * 4 
+  print(inside_count, num_darts)
+  return pi_approximation
+
+def setUpProfessionalDartboard(myscreen=None, myturtle=None):
+  setUpDartboard(myscreen, myturtle)
+  drawCircle(myturtle,.9,-.9)
+  myturtle.write("x2",False,align="center")
+  drawCircle(myturtle,.5,-.5)
+  drawCircle(myturtle,.4,-.4)
+  myturtle.write("x3",False,align="center")
+  drawCircle(myturtle,.1,-.1)
+  myturtle.write("x5",False,align="center")
+
+def calculateScore(myturtle=None):
+  distance = myturtle.distance(0,0)
+  if (distance > 1):
+    return 0
+  elif (distance >= 0.9):
+    return 2 
+  elif(distance >= 0.5):
+    return 1
+  elif(distance >= 0.4):
+    return 3
+  elif(distance >= 0.1):
+    return 1
+  else:
+    return 5
 
 
+def playGame(myscreen=None, myturtle=None, players=1):
+    if players >= 7:
+      print("Too many players! Try again with 7 or less players.")
+      return
+    setUpProfessionalDartboard(myscreen, myturtle)
+    colorList = ["blue", "orange", "purple", "green", "red", "yellow", "pink"]
+    playerNames = []
+    playerScores = [0] * players
+    length = len(playerScores)
+    for p in range(players):
+      playerNames.append(str(input("Please input Player " + str(p+1) + "'s name: '")))
+    instructions = "Players will take turns throwing 3 darts per round for 5 rounds. Player with the most points wins!"
+    print(instructions)
+    time.sleep(5)
+    for r in range(5):
+      for s in range(players):
+        for d in range(3):
+          throwDart(myturtle,1,colorList[s])
+          playerScores[s] += calculateScore(myturtle)
+    indexOfMaximum = 0
+    maximum = 0
+    for i in range(length):
+      if playerScores[i] > maximum:
+        maximum = playerScores[i]
+        indexOfMaximum = i
+    print("The winner is " + str(playerNames[indexOfMaximum]) + " with a total of " + str(playerScores[indexOfMaximum]) + " points!")
+    
+  
+  
 
 #########################################################
 #         Do not alter any code below here              #
@@ -58,6 +190,8 @@ def main():
         throwDart(darty)
         if isInCircle(myturtle=darty, radius=1):
           print("You hit the dartboard!")
+        else:
+          print("You missed...")
     print("\tPart A Complete...")
     print("=========== Part B ===========")
     darty.clear()
@@ -80,6 +214,10 @@ def main():
     print("\nThe estimation of pi using "+str(number_darts)+" virtual darts is " + str(approx_pi))
     print("\tPart C Complete...")
     # Don't hide or mess with window while it's 'working'
+    print("=========== Dart Game ===========")
+    darty.clear()
+    playGame(window, darty, players=2)
     window.exitonclick()
+
 
 main()
